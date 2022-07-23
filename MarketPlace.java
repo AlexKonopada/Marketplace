@@ -2,35 +2,48 @@ import java.util.Scanner;
 
 class MarketPlace {
     public static void main(String[] args) {
-        while (true)
-            Menu();
+        Menu();
     }
-
     public static void Menu(){
-        System.out.println("Welcome to the Marketplace");
-        System.out.println("Possible operations: " + "\n" +
-                           "Add customer : 1" + "\n" +
-                           "Add product : 2" + "\n" +
-                           "See the customers : 3" + "\n" +
-                           "See the products : 4" + "\n" +
-                           "Make a purchase : 5");
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Press the appropriate number for the specific operation. For example: 1 - to add customer, 2 - to add product...");
-        int userChoice = scanner.nextInt();
-        sevenOptions(userChoice);
+        while (true) {
+            System.out.println("Welcome to the Marketplace");
+            System.out.println("Possible operations: " + "\n" +
+                    "Add customer : 1" + "\n" +
+                    "Add product : 2" + "\n" +
+                    "See the customers : 3" + "\n" +
+                    "See the products : 4" + "\n" +
+                    "Make a purchase : 5" + "\n" +
+                    "See customer's purchases : 6" + "\n" +
+                    "See product's owners: 7" + "\n" +
+                    "Exit Market : 0");
 
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Press the appropriate number for the specific operation. For example: 1 - to add customer, 2 - to add product...");
+            int userChoice = scanner.nextInt();
+            sevenOptions(userChoice);
+
+            if (userChoice == 0)
+                System.out.println("Thanks for visiting the market!!!");
+                break;
+        }
     }
-    public static  void customerCase() {
+
+    public static void customerCase() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Customer's first name: ");
-        String firstName = scanner.nextLine();
-
+        String firstName = null;
+        firstName = scanner.nextLine();
         System.out.println("Customer's last name: ");
         String lastName = scanner.nextLine();
 
         System.out.println("Customer's money: ");
-        int money = scanner.nextInt();
-
+        int money = 0;
+        try {
+            money = scanner.nextInt();
+        }
+        catch (Exception e) {
+            System.out.println("Wrong input");
+        }
         Customer.addCustomer(firstName, lastName, money);
     }
 
@@ -55,9 +68,18 @@ class MarketPlace {
 
     public static void showProductsCase() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Choose customer: ");
+        Customer.showCustomers();
+        System.out.println("Choose customer's id: ");
         int customerId = scanner.nextInt();
+        Customer.userStorage[customerId-1].showPurchaseBasket();
+    }
 
+    public static void showOwnersCase() {
+        Scanner scanner = new Scanner(System.in);
+        Product.showProducts();
+        System.out.println("Choose product's id: ");
+        int productId = scanner.nextInt();
+        Product.productStorage[productId-1].showOwners();
     }
     public static void sevenOptions(int index){
         if (index == 1) {
@@ -76,10 +98,10 @@ class MarketPlace {
             purchaseCase();
         }
         else if (index == 6) {
-
+            showProductsCase();
         }
         else if (index == 7) {
-
+            showOwnersCase();
         }
 
     }
@@ -91,7 +113,7 @@ class MarketPlace {
 
         public static Customer[] userStorage = new Customer[0];
 
-        public static Product[] purchasedProducts = new Product[0];
+        public static String[] purchasedProducts = new String[0];
         public Customer(int id, String firstName, String lastName, int money) {
             this.id = id;
             this.firstName = firstName;
@@ -119,19 +141,20 @@ class MarketPlace {
         }
 
         public static void addProductToPurchase(int productId) {
-            Product[] newPurchasePacker = new Product[purchasedProducts.length + 1];
+            String[] newPurchasePack = new String[purchasedProducts.length + 1];
 
-            for (int i = 0; i < newPurchasePacker.length; i++)
-                newPurchasePacker[i] = purchasedProducts[i];
+            for (int i = 0; i < purchasedProducts.length; i++)
+                newPurchasePack[i] = purchasedProducts[i];
 
-            newPurchasePacker[newPurchasePacker.length - 1] = Product.productStorage[productId];
+            newPurchasePack[newPurchasePack.length-1] = Product.productStorage[productId-1].name;
 
-            purchasedProducts = newPurchasePacker;
+            purchasedProducts = newPurchasePack;
         }
+
         public static void showPurchaseBasket(){
             System.out.println("Purchased products: ");
-            for (int i = 0; i < purchasedProducts.length; i++){
-                System.out.println(purchasedProducts[i]);
+            for (String product: purchasedProducts){
+                System.out.println(product);
             }
         }
         public static void makePurchase(int customerId) {
@@ -142,6 +165,7 @@ class MarketPlace {
             userStorage[customerId-1].money -= Product.productStorage[productId-1].price;
             System.out.println("Customer's amount of money: " + userStorage[customerId-1].money);
             addProductToPurchase(productId);
+            Product.addOwner(customerId);
         }
 
     }
@@ -152,6 +176,8 @@ class MarketPlace {
         private int price;
 
         public static Product[] productStorage = new Product[0];
+
+        public static String[] productOwners = new String[0];
 
         public Product(int id, String name, int price) {
             this.id = id;
@@ -179,10 +205,24 @@ class MarketPlace {
             }
         }
 
+        public static void addOwner(int ownerId){
+            String[] newOwner = new String[productOwners.length + 1];
 
+            for (int i = 0; i < productOwners.length; i++)
+                newOwner[i] = productOwners[i];
 
+            newOwner[newOwner.length-1] = Product.productStorage[ownerId-1].name;
+
+            productOwners = newOwner;
+        }
+
+        public static void showOwners(){
+            System.out.println("Owner's of the product: ");
+            for (String owner: productOwners){
+                System.out.println(owner);
+            }
+        }
 
     }
 
 }
-
